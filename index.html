@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Example SQL Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body
+    class="dark:bg-gray-800 dark:text-gray-200 font-sans p-5 flex justify-center min-h-screen"
+  >
+    <!-- Main container centered in the screen -->
+    <!-- Responsive layout -->
+    <div class="max-w-xl w-full space-y-8">
+      <h1 class="text-4xl font-bold mb-4 text-center">Example SQL Generator</h1>
+      <!-- Input for table name -->
+      <div class="mb-4">
+        <input
+          type="text"
+          id="tableName"
+          placeholder="Table Name"
+          class="inputField bg-gray-700 text-white p-2 rounded w-full"
+          oninput="generateSQL()"
+        />
+      </div>
+      <!-- Container for dynamic column inputs -->
+      <div id="columnsContainer" class="mb-4">
+        <!-- Columns will be added here dynamically -->
+      </div>
+      <!-- Buttons for adding and removing columns -->
+      <div class="flex justify-between space-x-2 mb-4">
+        <button
+          id="addColumnBtn"
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg w-1/2"
+          onclick="addColumnField()"
+        >
+          Add Column
+        </button>
+        <button
+          id="removeColumnBtn"
+          class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow-lg w-1/2"
+          onclick="removeColumnField()"
+        >
+          Remove Column
+        </button>
+      </div>
+      <!-- Slider for selecting the number of rows -->
+      <div class="mt-4">
+        <label for="rowsAmount" class="block mb-2"
+          >Number of Rows: <span id="rowsAmountLabel"> 10 </span></label
+        >
+        <input
+          type="range"
+          id="rowsAmount"
+          min="1"
+          max="1000"
+          value="10"
+          class="inputField w-full"
+          oninput="generateSQL()"
+        />
+      </div>
+      <!-- Copy button -->
+      <button
+        id="copyBtn"
+        class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow-lg w-full"
+        onclick="copySQL()"
+      >
+        Copy SQL
+      </button>
+      <!-- Container for displaying the generated SQL -->
+      <h3 class="text-lg font-bold mt-4 mb-0">Generated SQL:</h3>
+      <pre
+        id="sqlOutput"
+        class="bg-gray-700 p-4 rounded text-xs shadow-lg text-balance"
+      ></pre>
+    </div>
+
+    <script>
+      let columnsCount = 0;
+
+      // Function to add a new column input field
+      function addColumnField() {
+        columnsCount++;
+        const container = document.getElementById("columnsContainer");
+        const columnDiv = document.createElement("div");
+        columnDiv.setAttribute("class", "columnInput mb-2");
+        columnDiv.setAttribute("id", `column${columnsCount}`);
+        columnDiv.innerHTML = `
+<div class="flex space-x-2">
+    <input type="text" placeholder="Column Name" class="inputField mb-2 bg-white text-black p-2 rounded w-full h-10" id="columnName${columnsCount}" oninput="generateSQL()">
+    <select class="inputField bg-white text-black p-2 rounded w-full h-10" id="dataType${columnsCount}" onchange="generateSQL()">
+        <option value="INT">INT</option>
+        <option value="VARCHAR(255)">VARCHAR(255)</option>
+        <option value="TEXT">TEXT</option>
+        <option value="BOOLEAN">BOOLEAN</option>
+        <option value="FLOAT">FLOAT</option>
+        <option value="DATE">DATE</option>
+        <option value="DATETIME">DATETIME</option>
+    </select>
+</div>
+        `;
+        container.appendChild(columnDiv);
+        generateSQL();
+      }
+
+      // Function to remove the last column input field
+      function removeColumnField() {
+        if (columnsCount > 0) {
+          const container = document.getElementById("columnsContainer");
+          const columnDiv = document.getElementById(`column${columnsCount}`);
+          container.removeChild(columnDiv);
+          columnsCount--;
+          generateSQL();
+        }
+      }
+
+      // Function to generate SQL data
+      function generateSQL() {
+        const tableName = document.getElementById("tableName").value;
+        const rowsAmount = document.getElementById("rowsAmount").value; // Get the slider value
+        if (tableName === "") {
+          document.getElementById("sqlOutput").textContent = "";
+          return;
+        }
+        let columns = [];
+        for (let i = 1; i <= columnsCount; i++) {
+          const columnName = document.getElementById(`columnName${i}`).value;
+          const dataType = document.getElementById(`dataType${i}`).value;
+          if (columnName !== "") {
+            columns.push({ columnName, dataType });
+          }
+        }
+        if (columns.length === 0) {
+          document.getElementById("sqlOutput").textContent = "";
+          return;
+        }
+        let sql = `INSERT INTO ${tableName} (${columns
+          .map((col) => col.columnName)
+          .join(", ")}) VALUES\n`;
+        for (let i = 0; i < rowsAmount; i++) {
+          // Use the slider value here
+          let row = columns
+            .map((col) => {
+              switch (col.dataType) {
+                case "INT":
+                  return Math.floor(Math.random() * 100);
+                case "VARCHAR(255)":
+                case "TEXT":
+                  return `'SampleText${i}'`;
+                case "BOOLEAN":
+                  return Math.random() < 0.5 ? "TRUE" : "FALSE";
+                case "FLOAT":
+                  return (Math.random() * 100).toFixed(2);
+                case "DATE":
+                  // Random day between 1 and 28 and month 1 and 12
+                  let day = Math.floor(Math.random() * 28) + 1;
+                  let month = Math.floor(Math.random() * 12) + 1;
+                  return `'2023-${month}-${day}'`;
+                case "DATETIME":
+                  // Random day between 1 and 28 and month 1 and 12
+                  let day2 = Math.floor(Math.random() * 28) + 1;
+                  let month2 = Math.floor(Math.random() * 12) + 1;
+                  // Random hour between 0 and 23 and minute 0 and 59
+                  let hour = Math.floor(Math.random() * 24);
+                  let minute = Math.floor(Math.random() * 60);
+                  let second = Math.floor(Math.random() * 60);
+                  return `'2023-${month2}-${day2} ${hour}:${minute}:${second}'`;
+                default:
+                  return "NULL";
+              }
+            })
+            .join(", ");
+          sql += `(${row})${i < rowsAmount - 1 ? "," : ";"}\n`;
+        }
+        document.getElementById("sqlOutput").textContent = sql;
+      }
+
+      // Event listener for updating rows amount label
+      document
+        .getElementById("rowsAmount")
+        .addEventListener("input", function () {
+          document.getElementById("rowsAmountLabel").textContent = this.value;
+          generateSQL();
+        });
+
+      // Also run this function when the page loads
+      document.getElementById("rowsAmountLabel").textContent =
+        document.getElementById("rowsAmount").value;
+
+      // Function to copy the generated SQL
+      function copySQL() {
+        const sqlOutput = document.getElementById("sqlOutput");
+        const range = document.createRange();
+        range.selectNode(sqlOutput);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        document.execCommand("copy");
+        window.getSelection().removeAllRanges();
+      }
+
+      // Initialize the first column field
+      addColumnField();
+    </script>
+  </body>
+</html>
