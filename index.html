@@ -72,8 +72,23 @@
         id="sqlOutput"
         class="bg-gray-700 p-4 rounded text-xs shadow-lg text-balance"
       ></pre>
+      <!-- Footer -->
+      <footer class="text-center text-gray-500 text-xs mt-4">
+        <a
+          href="https://github.com/DuckyBlender/example-sql-generator"
+          target="_blank"
+          class="text-blue-500 hover:text-blue-700"
+          >View on GitHub</a
+        >
+        | Made by
+        <a
+          href="https://github.com/DuckyBlender"
+          target="_blank"
+          class="text-blue-500 hover:text-blue-700"
+          >DuckyBlender</a
+        >
+      </footer>
     </div>
-
     <script>
       let columnsCount = 0;
 
@@ -85,19 +100,19 @@
         columnDiv.setAttribute("class", "columnInput mb-2");
         columnDiv.setAttribute("id", `column${columnsCount}`);
         columnDiv.innerHTML = `
-<div class="flex space-x-2">
-    <input type="text" placeholder="Column Name" class="inputField mb-2 bg-white text-black p-2 rounded w-full h-10" id="columnName${columnsCount}" oninput="generateSQL()">
-    <select class="inputField bg-white text-black p-2 rounded w-full h-10" id="dataType${columnsCount}" onchange="generateSQL()">
-        <option value="INT">INT</option>
-        <option value="VARCHAR(255)">VARCHAR(255)</option>
-        <option value="TEXT">TEXT</option>
-        <option value="BOOLEAN">BOOLEAN</option>
-        <option value="FLOAT">FLOAT</option>
-        <option value="DATE">DATE</option>
-        <option value="DATETIME">DATETIME</option>
-    </select>
-</div>
-        `;
+         <div class="flex space-x-2">
+         <input type="text" placeholder="Column Name" class="inputField mb-2 bg-white text-black p-2 rounded w-full h-10" id="columnName${columnsCount}" oninput="generateSQL()">
+         <select class="inputField bg-white text-black p-2 rounded w-full h-10" id="dataType${columnsCount}" onchange="generateSQL()">
+           <option value="INT">INT</option>
+           <option value="VARCHAR(255)">VARCHAR(255)</option>
+           <option value="TEXT">TEXT</option>
+           <option value="BOOLEAN">BOOLEAN</option>
+           <option value="FLOAT">FLOAT</option>
+           <option value="DATE">DATE</option>
+           <option value="DATETIME">DATETIME</option>
+         </select>
+         </div>
+           `;
         container.appendChild(columnDiv);
         generateSQL();
       }
