@@ -12,6 +12,7 @@
     />
     <meta name="author" content="DuckyBlender" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="favicon.png" type="image/png" />
     <title>Example SQL Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
@@ -80,7 +81,7 @@
       <h3 class="text-lg font-bold mt-4 mb-0">Generated SQL:</h3>
       <pre
         id="sqlOutput"
-        class="bg-gray-700 p-4 rounded text-xs shadow-lg text-balance"
+        class="bg-gray-700 p-4 rounded text-xs shadow-lg text-balance overflow-x-auto"
       ></pre>
       <!-- Footer -->
       <footer class="text-center text-gray-500 text-xs mt-4">
@@ -101,6 +102,7 @@
     </div>
     <script>
       let columnsCount = 0;
+      let copyTimeout; // Global variable to store the timeout ID
 
       // Function to add a new column input field
       function addColumnField() {
@@ -167,7 +169,9 @@
             .map((col) => {
               switch (col.dataType) {
                 case "INT":
-                  return Math.floor(Math.random() * 100);
+                  // int is not random in case it's a primary key
+                  return i + 1;
+                  return 
                 case "VARCHAR(255)":
                 case "TEXT":
                   return `'SampleText${i}'`;
@@ -185,10 +189,11 @@
                   let day2 = Math.floor(Math.random() * 28) + 1;
                   let month2 = Math.floor(Math.random() * 12) + 1;
                   // Random hour, minute and second
+                  let current_year = new Date().getFullYear();
                   let hour = Math.floor(Math.random() * 24);
                   let minute = Math.floor(Math.random() * 60);
                   let second = Math.floor(Math.random() * 60);
-                  return `'2023-${month2}-${day2} ${hour}:${minute}:${second}'`;
+                  return `'${current_year}-${month2}-${day2} ${hour}:${minute}:${second}'`;
                 default:
                   return "NULL";
               }
@@ -214,12 +219,28 @@
       // Function to copy the generated SQL
       function copySQL() {
         const sqlOutput = document.getElementById("sqlOutput");
+        // Remove newlines
+        sqlOutput.textContent = sqlOutput.textContent.replace(/\n/g, "");
+
         const range = document.createRange();
         range.selectNode(sqlOutput);
         window.getSelection().removeAllRanges();
         window.getSelection().addRange(range);
         document.execCommand("copy");
         window.getSelection().removeAllRanges();
+
+        const copyBtn = document.getElementById("copyBtn");
+        copyBtn.textContent = "Copied!";
+
+        // Clear the previous timeout if it exists
+        if (copyTimeout) {
+          clearTimeout(copyTimeout);
+        }
+
+        // Set a new timeout
+        copyTimeout = setTimeout(() => {
+          copyBtn.textContent = "Copy SQL";
+        }, 1000);
       }
 
       // Initialize the first column field
